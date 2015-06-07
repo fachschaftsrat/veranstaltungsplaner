@@ -1,0 +1,119 @@
+@(content: Html)(implicit context: RequestContext)
+
+<!DOCTYPE html>
+<html ng-app="veranstaltungsplaner">
+<head>
+	<title>Veranstaltungen FSR PAF</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))' />
+	<link rel="stylesheet" href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap-theme.min.css"))' />
+	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")' />
+	<link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap-dialog.min.css")' />
+</head>
+<body role="document">
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href='@routes.Application.index()'><img alt="FSRPAF" style="height: 100%;" title="FSR PAF Logo" src='/assets/images/logo.gif' /></a>
+		</div>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-left">
+				<li><a href='@routes.Application.veranstaltungen()'>Veranstaltungen</a></li>
+				@if(context.princIsAdmin) {
+				<li><a href='@routes.Application.addevent()'>Veranstaltung erstellen</a></li>
+				}
+			</ul>
+
+			@if(context.principal.isDefined) {
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href='@routes.Application.profile(context.principal.get.name)'>Eingeloggt als @context.principal.get.name</a></li>
+				<li><a href='@routes.Application.logout()'>Logout</a></li>
+			</ul>
+			} else {
+			<ul class="navbar-form navbar-right">
+				<li><a class="btn btn-primary loginbutton" data-toggle="modal" href="#loginModal" >Login</a></li>
+			</ul>
+			}
+		</div>
+	</div>
+</nav>
+<script src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
+<script src='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.js"))'></script>
+<script src='@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))'></script>
+<script src='@routes.Assets.at("javascripts/application.js")'></script>
+<script src='@routes.Assets.at("javascripts/bootstrap-dialog.min.js")'></script>
+
+<div id="loginModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Login</h4>
+			</div>
+			<div class="modal-body">
+				<form method="POST" action='@routes.Application.login()'>
+					<div class="row">
+						<div class="form-group col-md-6">
+							<input type="text" class="form-control" name="username" placeholder="Username" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-md-6">
+							<input type="password" class="form-control" name="password" placeholder="Passwort" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-md-6">
+							<input type="submit" class="form-control btn btn-primary" value="Einloggen" />
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<a href='@routes.Application.register'>Registrieren</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+@content
+
+@if(context.error.isDefined) {
+<script>
+BootstrapDialog.show({
+	type: BootstrapDialog.TYPE_DANGER,
+	title: 'Fehler!',
+	message: '@context.error.get'
+});
+</script>
+}
+@if(context.success.isDefined) {
+<script>
+BootstrapDialog.show({
+	type: BootstrapDialog.TYPE_SUCCESS,
+	title: 'Erfolg!',
+	message: '@context.success.get'
+});
+</script>
+}
+@if(context.notice.isDefined) {
+<script>
+BootstrapDialog.show({
+	type: BootstrapDialog.TYPE_INFO,
+	title: 'Hinweis!',
+	message: '@context.notice.get'
+});
+</script>
+}
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+@()(implicit context: RequestContext)
+
+@Main {
+<div class="container">
+	<h1>Veranstaltungsplaner des Fachschaftsrates der PAF</h1>
+	<h3>Willkommen!</h3>
+
+	<p>Mit dieser Webanwendung kannst du dich für Veranstaltungen an der
+	Physikalisch Astronomischen Fakultät der FSU Jena anmelden. Um dich für eine
+	Veranstaltung anzumelden, musst du zunächst einen
+	<a href='@routes.Application.register()'>Account erstellen</a>.
+	Für die Anmeldung zu bestimmten Veranstaltungen sind manchmal noch
+	Zusatzinformationen notwendig.</p>
+
+	<p><b>Achtung:</b> Das Programm ist zurzeit in der Beta-Phase und
+	es ist nicht ausgeschlossen, dass du Fehler finden könntest. Bitte
+	schick eine Mail an <a href="mailto:fsr@@paf.uni-jena.de">fsr@@paf.uni-jena.de</a>
+	wenn du auf Probleme stößt. Außerdem ist es möglich, dass zwischen 2 Veranstaltungen
+	alle Accounts gelöscht werden und du dir einen neuen anlegen musst.</p>
+</div>
+}

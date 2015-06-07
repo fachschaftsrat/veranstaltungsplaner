@@ -1,0 +1,67 @@
+@(profile: models.Profile)(implicit context: RequestContext)
+
+@Main {
+<div class="container">
+	<h1>Nutzereinstellungen</h1>
+
+	<h2>Account-Informationen</h2>
+	<form method="POST" action='@routes.Application.profile(profile.name)'>
+		<table class="table">
+			<tbody>
+				<tr>
+					<td>Nutzername</td>
+					<td>@profile.name</td>
+				</tr>
+				<tr>
+					<td>Vorname</td>
+					<td>@profile.vorname</td>
+				</tr>
+				<tr>
+					<td>Nachname</td>
+					<td>@profile.nachname</td>
+				</tr>
+				<tr>
+					<td>Email</td>
+					<td>@profile.email</td>
+				</tr>
+				<tr>
+					<td>Studiengang</td>
+					<td>@profile.studiengang</td>
+				</tr>
+				<tr>
+					<td>Telefonnummer</td>
+					<td>@profile.tel</td>
+				</tr>
+				<tr>
+					<td>Admin</td>
+					<td><input type="checkbox" name="admin" @if(profile.admin) { checked } @if(!context.princIsAdmin) { disabled }></td>
+				</tr>
+			</tbody>
+		</table>
+		<input type="hidden" name="section" value="account" />
+		@if(context.princIsAdmin) { <input type="submit" class="btn btn-primary" value="Ändern" /> }
+	</form>
+
+	<h2>Passwort ändern</h2>
+	<form method="POST" action='@routes.Application.profile(profile.name)'>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="pw1">Neues Passwort</label><br />
+				<input class="form-control" name="pw1" type="password" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="pw2">Passwort wiederholen</label><br />
+				<input class="form-control" name="pw2" type="password" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<input type="submit" class="btn btn-primary" />
+			</div>
+		</div>
+		<input type="hidden" name="section" value="cpw" />
+	</form>
+</div>
+}

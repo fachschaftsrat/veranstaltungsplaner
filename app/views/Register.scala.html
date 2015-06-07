@@ -1,0 +1,62 @@
+@()(implicit context: RequestContext)
+
+@Main {
+<div class="container" ng-controller="RegistrationFormCtrl">
+	<h1>Registrieren</h1>
+	<form class="valform" method="POST" action='@routes.Application.register()' name="regform" novalidate>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Nutzername</label><br />
+				<input class="form-control" name="nutzername" type="text" ng-model="form.nutzername" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="pw1">Passwort</label><br />
+				<input class="form-control" name="pw1" type="password" ng-model="form.pw1" equals="{{form.pw2}}" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="pw2">Passwort wiederholen</label><br />
+				<input class="form-control" name="pw2" type="password" ng-model="form.pw2" equals="{{form.pw1}}" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="email">Email</label><br />
+				<input class="form-control" name="email" type="email" ng-model="form.email" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="firstname">Vorname</label><br />
+				<input class="form-control" name="vorname" type="text" ng-model="form.vorname" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="lastname">Nachname</label><br />
+				<input class="form-control" name="nachname" type="text" ng-model="form.nachname" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="studiengang">Studiengang</label><br />
+				<input class="form-control" name="studiengang" type="text" ng-model="form.studiengang" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="tel">Telefonnummer (optional)</label><br />
+				<input class="form-control" name="tel" type="text" ng-model="form.tel" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<input class="form-control btn btn-primary" value="Registrieren" type="submit" ng-disabled="regform.$invalid" ng-click="saveState()" />
+			</div>
+		</div>
+	</form>
+</div>
+}

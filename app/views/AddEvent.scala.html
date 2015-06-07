@@ -1,0 +1,38 @@
+@()(implicit context: RequestContext)
+
+@Main {
+<div class="container">
+	<h1>Veranstaltung erstellen</h1>
+	<form method="POST" action='@routes.Application.addevent()'>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Veranstaltungsname</label><br />
+				<input class="form-control" name="name" type="text" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Zeit</label><br />
+				<input class="form-control" name="zeit" type="text" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Ort</label><br />
+				<input class="form-control" name="ort" type="text" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Veranstaltungsname</label><br />
+				<textarea class="form-control" name="beschreibung" required></textarea>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<input class="form-control btn btn-primary" type="submit" value="Eintragen" required />
+			</div>
+		</div>
+	</form>
+</div>
+}

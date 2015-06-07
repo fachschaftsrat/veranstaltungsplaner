@@ -1,0 +1,17 @@
+GET	/webjars/*file				controllers.WebJarAssets.at(file)
+GET	/assets/*file				controllers.Assets.at(path="/public", file)
+
+GET	/					controllers.Application.index()
+GET	/veranstaltungen			controllers.Application.veranstaltungen()
+GET	/register				controllers.Application.register()
+POST	/register				controllers.Application.register()
+GET	/activation/:name/:secret		controllers.Application.activate(name, secret)
+POST	/login					controllers.Application.login()
+GET	/logout					controllers.Application.logout()
+GET	/profile/:name				controllers.Application.profile(name)
+POST	/profile/:name				controllers.Application.profile(name)
+GET	/addevent				controllers.Application.addevent()
+POST	/addevent				controllers.Application.addevent()
+GET	/event/:event				controllers.Application.showevent(event)
+GET	/anmelden/:event			controllers.Application.anmelden(event)
+
