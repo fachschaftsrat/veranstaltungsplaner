@@ -64,4 +64,17 @@ class Events @Inject()(implicit
         Future.successful(error(routes.Events.showevent(id), "Dafür musst du angemeldet sein."))
     }
   }
+
+  def signoff(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
+    context.principal match {
+      case Some(princ) ⇒
+        Event.find(id) flatMap { event ⇒
+          event.get.removeParticipant(princ) map { _ ⇒
+            success(routes.Events.showevent(id), "Du wurdest erfolgreich abgemeldet.")
+          }
+        }
+      case None ⇒
+        Future.successful(error(routes.Events.showevent(id), "Dafür musst du angemeldet sein."))
+    }
+  }
 }

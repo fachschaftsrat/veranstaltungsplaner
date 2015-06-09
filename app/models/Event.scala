@@ -53,6 +53,10 @@ case class Event(
     }
   }
 
+  def removeParticipant(principal: Principal)(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Unit] = {
+    mongo.db.collection[BSONCollection]("participations").remove(Participation(principal.id, id)) map { _ ⇒ Unit }
+  }
+
   def save()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
     mongo.db.collection[BSONCollection]("events").insert(this)(Event.bsonWriter, ec) map { lastError ⇒
       if(lastError.ok) {
