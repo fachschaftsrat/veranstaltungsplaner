@@ -14,7 +14,9 @@ case class Event(
   name: String,
   zeit: String,
   ort: String,
-  beschreibung: String
+  beschreibung: String,
+  // Whether registration to this event is open
+  open: Boolean
 ) {
 
   def participants()(implicit mongo: ReactiveMongo, auth: Authenticator, ec: ExecutionContext): Future[Seq[Principal]] = {
@@ -45,6 +47,7 @@ case class Event(
   }
 
   def addParticipant(principal: Principal)(implicit mongo: ReactiveMongo, auth: Authenticator, ec: ExecutionContext): Future[Unit] = {
+    if(!open) throw new Exception("Registrierung nicht offen")
     isParticipant(principal) flatMap { isPart ⇒
       if(isPart) Future.successful(Unit)
       else {
@@ -54,11 +57,26 @@ case class Event(
   }
 
   def removeParticipant(principal: Principal)(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Unit] = {
+    if(!open) throw new Exception("Registrierung nicht offen")
     mongo.db.collection[BSONCollection]("participations").remove(Participation(principal.id, id)) map { _ ⇒ Unit }
   }
 
-  def save()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
+  def insert()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
     mongo.db.collection[BSONCollection]("events").insert(this)(Event.bsonWriter, ec) map { lastError ⇒
+      if(lastError.ok) {
+        Success(this)
+      } else {
+        Failure(lastError)
+      }
+    }
+  }
+
+  def setOpen(open: Boolean): Event = {
+    copy(open = open)
+  }
+
+  def save()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
+    mongo.db.collection[BSONCollection]("events").update(BSONDocument("_id" -> BSONObjectID(id)), this) map { lastError ⇒
       if(lastError.ok) {
         Success(this)
       } else {
@@ -78,7 +96,8 @@ object Event {
         form("name"),
         form("zeit"),
         form("ort"),
-        form("beschreibung")
+        form("beschreibung"),
+        false
       ))
     } catch {
       case t: Throwable ⇒ Failure(t)
@@ -109,7 +128,8 @@ object Event {
         bson.getAs[String]("name").get,
         bson.getAs[String]("zeit").get,
         bson.getAs[String]("ort").get,
-        bson.getAs[String]("beschreibung").get
+        bson.getAs[String]("beschreibung").get,
+        bson.getAs[Boolean]("open").getOrElse(false)
       )
     }
   }
@@ -121,7 +141,8 @@ object Event {
         "name" -> event.name,
         "zeit" -> event.zeit,
         "ort" -> event.ort,
-        "beschreibung" -> event.beschreibung
+        "beschreibung" -> event.beschreibung,
+        "open" -> event.open
       )
     }
   }

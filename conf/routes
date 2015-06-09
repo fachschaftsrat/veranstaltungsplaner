@@ -17,4 +17,4 @@ POST	/addevent				controllers.Events.addevent()
 GET	/event/:id				controllers.Events.showevent(id)
 GET	/signup/:id				controllers.Events.signup(id)
 GET	/signoff/:id				controllers.Events.signoff(id)
-
+GET	/toggleopen/:id				controllers.Events.toggleOpen(id)

@@ -28,7 +28,7 @@ class Events @Inject()(implicit
         case "GET" ⇒ Future.successful(Ok(views.html.AddEvent()))
         case "POST" ⇒
           val event = Event.validate(request).get
-          event.save() map {
+          event.insert() map {
             case Success(_) ⇒ success(routes.Application.index, "Event hinzugefügt")
             case Failure(f) ⇒ error(routes.Events.addevent, "Fehler: " + f.getMessage)
           }
@@ -76,5 +76,15 @@ class Events @Inject()(implicit
       case None ⇒
         Future.successful(error(routes.Events.showevent(id), "Dafür musst du angemeldet sein."))
     }
+  }
+
+  def toggleOpen(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
+    if(!context.princIsAdmin) throw new Exception("Keine Authorisierung")
+    Event.find(id) map { _.get } flatMap { event ⇒
+      event.setOpen(!event.open).save map {
+        case Success(_) ⇒ Redirect(routes.Events.showevent(id))
+        case Failure(f) ⇒ error(routes.Events.showevent(id), f.getMessage)
+      }
+    } 
   }
 }

@@ -6,10 +6,12 @@
 	Ort: @event.ort<br />
 	Zeit: @event.zeit
 	<p>@event.beschreibung</p>
+	<p>Die Registrierung ist <b>@if(event.open){offen}else{geschlossen}</b>
+	@if(context.princIsAdmin){<p><a href='@routes.Events.toggleOpen(event.id)'><button class="btn btn-primary">Registrierung öffnen/schließen</button></a></p>}
 	@if(isPart) {
-	<p>Du bist angemeldet. <a href='@routes.Events.signoff(event.id)'><button class="btn btn-primary">Abmelden</button></a></p>
+	<p>Du bist angemeldet. @if(event.open) {<a href='@routes.Events.signoff(event.id)'><button class="btn btn-primary">Abmelden</button></a>}</p>
 	} else {
-	<p>Du bist nicht angemeldet. <a href='@routes.Events.signup(event.id)'><button class="btn btn-primary">Anmelden</button></a></p>
+	<p>Du bist nicht angemeldet. @if(event.open) {<a href='@routes.Events.signup(event.id)'><button class="btn btn-primary">Anmelden</button></a>}</p>
 	}
 	@if(context.princIsAdmin) {
 	<h3>Angemeldete</h3>
