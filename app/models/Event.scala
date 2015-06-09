@@ -10,6 +10,7 @@ import scala.util.{ Try, Success, Failure }
 import scala.concurrent._
 
 case class Event(
+  id: String,
   name: String,
   zeit: String,
   ort: String,
@@ -18,16 +19,16 @@ case class Event(
 
   def participants()(implicit mongo: ReactiveMongo, auth: Authenticator, ec: ExecutionContext): Future[Seq[Principal]] = {
     val fParts: Future[Seq[Participation]] = mongo.db.collection[BSONCollection]("participations")
-      .find(BSONDocument("eventName" -> name))
+      .find(BSONDocument("eventID" -> id))
       .cursor[Participation]
       .collect[Seq]()
 
-    val fNames: Future[Seq[String]] = fParts map { seq ⇒
-      seq map { _.princName }
+    val fIDs: Future[Seq[String]] = fParts map { seq ⇒
+      seq map { _.princID }
     }
 
-    val ffPrincOptions: Future[Seq[Future[Option[Principal]]]] = fNames map { seq ⇒
-      seq map { name ⇒ auth.principals.find(name) }
+    val ffPrincOptions: Future[Seq[Future[Option[Principal]]]] = fIDs map { seq ⇒
+      seq map { id ⇒ auth.principals.findByID(id) }
     }
 
     val fPrincOptions: Future[Seq[Option[Principal]]] = ffPrincOptions flatMap { seq ⇒
@@ -47,7 +48,17 @@ case class Event(
     isParticipant(principal) flatMap { isPart ⇒
       if(isPart) Future.successful(Unit)
       else {
-        mongo.db.collection[BSONCollection]("participations").insert(Participation(principal.name, name)) map { _ ⇒ Unit }
+        mongo.db.collection[BSONCollection]("participations").insert(Participation(principal.id, id)) map { _ ⇒ Unit }
+      }
+    }
+  }
+
+  def save()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
+    mongo.db.collection[BSONCollection]("events").insert(this)(Event.bsonWriter, ec) map { lastError ⇒
+      if(lastError.ok) {
+        Success(this)
+      } else {
+        Failure(lastError)
       }
     }
   }
@@ -59,6 +70,7 @@ object Event {
     val form = request.body.asFormUrlEncoded.get map { case (key, value) ⇒ (key, value(0)) }
     try {
       Success(Event(
+        BSONObjectID.generate.stringify,
         form("name"),
         form("zeit"),
         form("ort"),
@@ -69,9 +81,27 @@ object Event {
     }
   }
 
+  def findAll()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Seq[Event]] = {
+    mongo.db.collection[BSONCollection]("events")
+      .find(BSONDocument())
+      .cursor[Event]
+      .collect[Seq]()
+  }
+
+  def find(id: String)(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Option[Event]] = {
+    mongo.db.collection[BSONCollection]("events")
+      .find(BSONDocument("_id" -> BSONObjectID(id)))
+      .cursor[Event]
+      .collect[Seq]() map { seq ⇒
+        if(seq.length > 0) Some(seq(0))
+        else None
+    }
+  }
+
   implicit val bsonReader = new BSONDocumentReader[Event] {
     def read(bson: BSONDocument): Event = {
       Event(
+        bson.getAs[BSONObjectID]("_id").get.stringify,
         bson.getAs[String]("name").get,
         bson.getAs[String]("zeit").get,
         bson.getAs[String]("ort").get,
@@ -83,6 +113,7 @@ object Event {
   implicit val bsonWriter = new BSONDocumentWriter[Event] {
     def write(event: Event): BSONDocument = {
       BSONDocument(
+        "_id" -> BSONObjectID(event.id),
         "name" -> event.name,
         "zeit" -> event.zeit,
         "ort" -> event.ort,

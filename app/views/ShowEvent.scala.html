@@ -9,12 +9,12 @@
 	@if(isPart) {
 	<p>Du bist angemeldet</p>
 	} else {
-	<p>Du bist nicht angemeldet. <a href='@routes.Application.anmelden(event.name)'><button class="btn btn-primary">Anmelden</button></a></p>
+	<p>Du bist nicht angemeldet. <a href='@routes.Events.signup(event.id)'><button class="btn btn-primary">Anmelden</button></a></p>
 	}
 	@if(context.princIsAdmin) {
 	<h3>Angemeldete</h3>
 	@for(participant <- participants) {
-		<a href='@routes.Application.profile(participant.name)'>@participant.name</a></br>
+		<a href='@routes.Users.profile(participant.id)'>@participant.name</a></br>
 	}
 	}
 }

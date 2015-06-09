@@ -5,7 +5,7 @@
 	<h1>Nutzereinstellungen</h1>
 
 	<h2>Account-Informationen</h2>
-	<form method="POST" action='@routes.Application.profile(profile.name)'>
+	<form method="POST" action='@routes.Users.profile(profile.id)'>
 		<table class="table">
 			<tbody>
 				<tr>
@@ -43,7 +43,7 @@
 	</form>
 
 	<h2>Passwort ändern</h2>
-	<form method="POST" action='@routes.Application.profile(profile.name)'>
+	<form method="POST" action='@routes.Users.profile(profile.id)'>
 		<div class="row">
 			<div class="form-group col-md-4">
 				<label for="pw1">Neues Passwort</label><br />

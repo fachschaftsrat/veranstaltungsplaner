@@ -5,6 +5,7 @@ import play.modules.authenticator._
 import scala.util.{ Try, Success, Failure }
 import scala.concurrent._
 import xyz.wiedenhoeft.scalacrypt._
+import reactivemongo.bson._
 
 case class Registration(
   nutzername: String,
@@ -31,15 +32,13 @@ case class Registration(
     auth.principals.create(
       nutzername,
       password,
-      Map(
+      BSONDocument(
         "email" -> email,
         "vorname" -> vorname,
         "nachname" -> nachname,
         "studiengang" -> studiengang,
         "tel" -> tel,
-        "activationSecret" -> bytesToHex(Random.nextBytes(16))
-      ),
-      Map(
+        "activationSecret" -> bytesToHex(Random.nextBytes(16)),
         "activated" -> false,
         "admin" -> false
       )

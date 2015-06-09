@@ -4,6 +4,7 @@ import play.modules.authenticator._
 
 case class Profile(
   principal: Principal,
+  id: String,
   name: String,
   email: String,
   vorname: String,
@@ -18,13 +19,14 @@ object Profile {
   def apply(principal: Principal): Profile = {
     Profile(
       principal,
+      principal.id,
       principal.name,
-      principal.field("email").getOrElse(""),
-      principal.field("vorname").getOrElse(""),
-      principal.field("nachname").getOrElse(""),
-      principal.field("studiengang").getOrElse(""),
-      principal.field("tel").getOrElse(""),
-      principal.flag("admin").getOrElse(false)
+      principal.value[String]("email").getOrElse(""),
+      principal.value[String]("vorname").getOrElse(""),
+      principal.value[String]("nachname").getOrElse(""),
+      principal.value[String]("studiengang").getOrElse(""),
+      principal.value[String]("tel").getOrElse(""),
+      principal.value[Boolean]("admin").getOrElse(false)
     )
   }
 }

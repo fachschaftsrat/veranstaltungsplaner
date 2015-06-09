@@ -23,7 +23,7 @@ object RequestContext {
         flash.get("error"),
         flash.get("success"),
         flash.get("notice"),
-        principal.isDefined && principal.get.flag("admin").getOrElse(false)
+        principal.isDefined && principal.get.value[Boolean]("admin").getOrElse(false)
       )
     }
   }

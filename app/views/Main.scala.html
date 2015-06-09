@@ -27,16 +27,16 @@
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav navbar-left">
-				<li><a href='@routes.Application.veranstaltungen()'>Veranstaltungen</a></li>
+				<li><a href='@routes.Events.events()'>Veranstaltungen</a></li>
 				@if(context.princIsAdmin) {
-				<li><a href='@routes.Application.addevent()'>Veranstaltung erstellen</a></li>
+				<li><a href='@routes.Events.addevent()'>Veranstaltung erstellen</a></li>
 				}
 			</ul>
 
 			@if(context.principal.isDefined) {
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href='@routes.Application.profile(context.principal.get.name)'>Eingeloggt als @context.principal.get.name</a></li>
-				<li><a href='@routes.Application.logout()'>Logout</a></li>
+				<li><a href='@routes.Users.profile(context.principal.get.id)'>Eingeloggt als @context.principal.get.name</a></li>
+				<li><a href='@routes.Users.logout()'>Logout</a></li>
 			</ul>
 			} else {
 			<ul class="navbar-form navbar-right">
@@ -60,7 +60,7 @@
 				<h4 class="modal-title">Login</h4>
 			</div>
 			<div class="modal-body">
-				<form method="POST" action='@routes.Application.login()'>
+				<form method="POST" action='@routes.Users.login()'>
 					<div class="row">
 						<div class="form-group col-md-6">
 							<input type="text" class="form-control" name="username" placeholder="Username" />
@@ -79,7 +79,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<a href='@routes.Application.register'>Registrieren</a>
+				<a href='@routes.Users.register'>Registrieren</a>
 			</div>
 		</div>
 	</div>
