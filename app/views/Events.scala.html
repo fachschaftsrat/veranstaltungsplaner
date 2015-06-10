@@ -6,7 +6,9 @@
 	@for(event <- events) {
 	<div class="jumbotron">
 		<h3><a href='@routes.Events.showevent(event.id)'>@event.name</a></h3>
-		<p>@event.beschreibung</p>
+		<div class="container" style="padding-left: 2px;">
+			@Html(event.beschreibung)
+		</div>
 	</div>
 	}
 </div>

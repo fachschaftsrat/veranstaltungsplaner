@@ -3,20 +3,38 @@
 @Main {
 <div class="container">
 	<h1>@event.name</h1>
-	Ort: @event.ort<br />
-	Zeit: @event.zeit
-	<p>@event.beschreibung</p>
-	<p>Die Registrierung ist <b>@if(event.open){offen}else{geschlossen}</b>
-	@if(context.princIsAdmin){<p><a href='@routes.Events.toggleOpen(event.id)'><button class="btn btn-primary">Registrierung öffnen/schließen</button></a></p>}
-	@if(isPart) {
-	<p>Du bist angemeldet. @if(event.open) {<a href='@routes.Events.signoff(event.id)'><button class="btn btn-primary">Abmelden</button></a>}</p>
-	} else {
-	<p>Du bist nicht angemeldet. @if(event.open) {<a href='@routes.Events.signup(event.id)'><button class="btn btn-primary">Anmelden</button></a>}</p>
-	}
+	<div class="container" style="padding-left: 2px;">
+		<b>Ort</b>: @event.ort<br />
+		<b>Zeit</b>: @event.zeit
+	</div>
+	<div class="container" style="margin-top: 50px; margin-bottom: 50px; padding-left: 2px;">
+		@Html(event.beschreibung)
+	</div>
+	<div class="container" style="padding-left: 2px;">
+		<p>Die Registrierung ist <b>@if(event.open){offen}else{geschlossen}</b>
+		@if(context.princIsAdmin){
+			<p><a href='@routes.Events.toggleOpen(event.id)'><button class="btn btn-primary">Registrierung öffnen/schließen</button></a></p>
+		}
+		@if(isPart) {
+			<p>Du bist angemeldet.
+			@if(event.open) {
+				<a href='@routes.Events.signoff(event.id)'><button class="btn btn-primary">Abmelden</button></a>
+			}
+			</p>
+		} else {
+			<p>Du bist nicht angemeldet.
+			@if(event.open) {
+				<a href='@routes.Events.signup(event.id)'><button class="btn btn-primary">Anmelden</button></a>
+			}
+			</p>
+		}
+	</div>
 	@if(context.princIsAdmin) {
-	<h3>Angemeldete</h3>
-	@for(participant <- participants) {
-		<a href='@routes.Users.profile(participant.id)'>@participant.name</a></br>
-	}
+		<div class="container" style="padding-left: 2px;">
+			<h3>Angemeldete</h3>
+			@for(participant <- participants) {
+				<a href='@routes.Users.profile(participant.id)'>@participant.name</a></br>
+			}
+		</div>
 	}
 }
