@@ -6,7 +6,7 @@ version := "0.1-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
-resolvers += "Bintray richard-w" at "https://dl.bintray.com/richard-w/maven"
+resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-mailer" % "3.0.0-RC1",
