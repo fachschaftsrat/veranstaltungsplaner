@@ -91,7 +91,7 @@ class Users @Inject()(implicit
     auth.authenticate(body("username")(0), body("password")(0)) {
       case Some(principal) ⇒
         if(principal.value[Boolean]("activated").getOrElse(false)) {
-          Future.successful(true, Redirect(routes.Application.index()))
+          Future.successful(true, Redirect(routes.Events.events()))
         } else {
           Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
         }
