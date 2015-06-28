@@ -2,7 +2,7 @@ name := "veranstaltungsplaner"
 
 organization := "io.github.fachschaftsrat"
 
-version := "0.1-SNAPSHOT"
+version := "0.1"
 
 scalaVersion := "2.11.6"
 
