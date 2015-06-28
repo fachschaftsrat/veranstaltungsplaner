@@ -40,14 +40,12 @@ class Events @Inject()(implicit
 
   def showevent(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
     Event.find(id) flatMap { event ⇒
-      val futureIsPart: Future[Boolean] = context.principal match {
+      val isPart: Boolean = context.principal match {
         case Some(princ) ⇒ event.get.isParticipant(princ)
-        case None ⇒ Future.successful(false)
+        case None ⇒ false
       }
-      futureIsPart flatMap { isPart ⇒
-        event.get.participants map { parts ⇒
-          Ok(views.html.ShowEvent(event.get, isPart, parts))
-        }
+      event.get.participants() map { parts ⇒
+        Ok(views.html.ShowEvent(event.get, isPart, parts))
       }
     }
   }
@@ -56,7 +54,7 @@ class Events @Inject()(implicit
     context.principal match {
       case Some(princ) ⇒
         Event.find(id) flatMap { event ⇒
-          event.get.addParticipant(princ) map { _ ⇒
+          event.get.addParticipant(princ).save map { _ ⇒
             success(routes.Events.showevent(id), "Du wurdest erfolgreich angemeldet.")
           }
         }
@@ -69,7 +67,7 @@ class Events @Inject()(implicit
     context.principal match {
       case Some(princ) ⇒
         Event.find(id) flatMap { event ⇒
-          event.get.removeParticipant(princ) map { _ ⇒
+          event.get.removeParticipant(princ).save() map { _ ⇒
             success(routes.Events.showevent(id), "Du wurdest erfolgreich abgemeldet.")
           }
         }

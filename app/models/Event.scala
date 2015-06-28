@@ -16,49 +16,26 @@ case class Event(
   ort: String,
   beschreibung: String,
   // Whether registration to this event is open
-  open: Boolean
+  open: Boolean,
+  // List of principal ids participating
+  participantIDs: Seq[String]
 ) {
 
-  def participants()(implicit mongo: ReactiveMongo, auth: Authenticator, ec: ExecutionContext): Future[Seq[Principal]] = {
-    val fParts: Future[Seq[Participation]] = mongo.db.collection[BSONCollection]("participations")
-      .find(BSONDocument("eventID" -> id))
-      .cursor[Participation]
-      .collect[Seq]()
-
-    val fIDs: Future[Seq[String]] = fParts map { seq ⇒
-      seq map { _.princID }
-    }
-
-    val ffPrincOptions: Future[Seq[Future[Option[Principal]]]] = fIDs map { seq ⇒
-      seq map { id ⇒ auth.principals.findByID(id) }
-    }
-
-    val fPrincOptions: Future[Seq[Option[Principal]]] = ffPrincOptions flatMap { seq ⇒
-      Future.sequence(seq)
-    }
-
-    fPrincOptions map { seq ⇒
-      seq.filter { _.isDefined } map { _.get }
+  def participants()(implicit auth: Authenticator, ec: ExecutionContext): Future[Seq[Principal]] = {
+    Future.sequence(participantIDs.map({ id ⇒ auth.principals.findByID(id) })) map { seq ⇒
+      seq.filter({ _.isDefined}).map({ _.get })
     }
   }
 
-  def isParticipant(princ: Principal)(implicit mongo: ReactiveMongo, auth: Authenticator, ec: ExecutionContext): Future[Boolean] = {
-    participants map { seq ⇒ seq map { _.name } } map { names ⇒ names.contains(princ.name) }
+  def isParticipant(princ: Principal): Boolean = participantIDs.filter({ _ == princ.id }).size > 0
+
+  def addParticipant(princ: Principal): Event = {
+    if(!isParticipant(princ)) copy(participantIDs = participantIDs :+ princ.id)
+    else this
   }
 
-  def addParticipant(principal: Principal)(implicit mongo: ReactiveMongo, auth: Authenticator, ec: ExecutionContext): Future[Unit] = {
-    if(!open) throw new Exception("Registrierung nicht offen")
-    isParticipant(principal) flatMap { isPart ⇒
-      if(isPart) Future.successful(Unit)
-      else {
-        mongo.db.collection[BSONCollection]("participations").insert(Participation(principal.id, id)) map { _ ⇒ Unit }
-      }
-    }
-  }
-
-  def removeParticipant(principal: Principal)(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Unit] = {
-    if(!open) throw new Exception("Registrierung nicht offen")
-    mongo.db.collection[BSONCollection]("participations").remove(Participation(principal.id, id)) map { _ ⇒ Unit }
+  def removeParticipant(princ: Principal) = {
+    copy(participantIDs = participantIDs.filter({ _ != princ.id }))
   }
 
   def insert()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
@@ -97,7 +74,8 @@ object Event {
         form("zeit"),
         form("ort"),
         form("beschreibung"),
-        false
+        false,
+        Seq()
       ))
     } catch {
       case t: Throwable ⇒ Failure(t)
@@ -129,7 +107,8 @@ object Event {
         bson.getAs[String]("zeit").get,
         bson.getAs[String]("ort").get,
         bson.getAs[String]("beschreibung").get,
-        bson.getAs[Boolean]("open").getOrElse(false)
+        bson.getAs[Boolean]("open").getOrElse(false),
+        bson.getAs[Seq[String]]("participantIDs").get
       )
     }
   }
@@ -142,7 +121,8 @@ object Event {
         "zeit" -> event.zeit,
         "ort" -> event.ort,
         "beschreibung" -> event.beschreibung,
-        "open" -> event.open
+        "open" -> event.open,
+        "participantIDs" -> event.participantIDs
       )
     }
   }
