@@ -1,0 +1,34 @@
+@(profiles: Seq[Profile])(implicit context: RequestContext)
+
+@Main {
+<div class="container">
+	<h1>Alle Nutzer</h1>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Vorname</th>
+				<th>Nachname</th>
+				<th>Email</th>
+				<th>Studiengang</th>
+				<th>Tel.</th>
+				<th>Admin</th>
+			</tr>
+		</thead>
+		<tbody>
+			@for(profile <- profiles) {
+			<tr>
+				<td><a href='@routes.Users.profile(profile.id)'>@profile.name</a></td>
+				<td>@profile.vorname</td>
+				<td>@profile.nachname</td>
+				<td>@profile.email</td>
+				<td>@profile.studiengang</td>
+				<td>@profile.tel</td>
+				<td><input type="checkbox" name="admin" @if(profile.admin) { checked } disabled></td>
+			</tr>
+			}
+		</tbody>
+	</table>
+</div>
+}
