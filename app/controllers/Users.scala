@@ -88,7 +88,7 @@ class Users @Inject()(implicit
 
   def login = Action.async { implicit request ⇒
     val body = request.body.asFormUrlEncoded.get
-    auth.authenticate(body("username")(0), body("password")(0)) {
+    auth.authenticateWithPassword(body("username")(0), body("password")(0)) {
       case Some(principal) ⇒
         if(principal.value[Boolean]("activated").getOrElse(false)) {
           Future.successful(true, Redirect(routes.Events.events()))
@@ -116,7 +116,7 @@ class Users @Inject()(implicit
               form("section") match {
                 case "cpw" ⇒
                   if(form("pw1") == form("pw2") && form("pw1").length > 0) {
-                    princ.cpw(form("pw1")).save map { princ ⇒
+                    princ.changePassword(form("pw1")).save map { princ ⇒
                       success(routes.Users.profile(id), "Passwort geändert")
                     }
                   } else {
@@ -140,6 +140,16 @@ class Users @Inject()(implicit
       }
     } else {
       Future.successful(error(routes.Application.index(), "Du bist nicht authorisiert, dieses Profil zu sehen."))
+    }
+  }
+
+  def allusers = asyncActionWithContext { implicit request ⇒ implicit context ⇒
+    if(context.princIsAdmin) {
+      auth.principals.findAll map { seq ⇒
+        Ok(views.html.AllUsers(seq map { Profile(_) }))
+      }
+    } else {
+      Future.successful(error(routes.Application.index, "Nicht authorisiert."))
     }
   }
 }

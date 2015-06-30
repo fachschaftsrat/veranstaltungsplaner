@@ -10,6 +10,7 @@ POST	/login					controllers.Users.login()
 GET	/logout					controllers.Users.logout()
 GET	/profile/:id				controllers.Users.profile(id)
 POST	/profile/:id				controllers.Users.profile(id)
+GET	/allusers				controllers.Users.allusers()
 
 GET	/events					controllers.Events.events()
 GET	/addevent				controllers.Events.addevent()

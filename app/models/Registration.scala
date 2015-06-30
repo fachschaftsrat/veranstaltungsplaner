@@ -29,7 +29,7 @@ case class Registration(
       return new String(hexChars);
     }
 
-    auth.principals.create(
+    auth.principals.createWithPassword(
       nutzername,
       password,
       BSONDocument(
