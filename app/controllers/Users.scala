@@ -22,7 +22,7 @@ class Users @Inject()(implicit
   conf: Configuration
 ) extends ExtendedController {
 
-  auth.principals.create("admin", "changeme", BSONDocument("admin" -> true, "activated" -> true))
+  auth.principals.createWithPassword("admin", "changeme", BSONDocument("admin" -> true, "activated" -> true))
 
   def register = asyncActionWithContext { request ⇒ implicit context ⇒
     request.method match {
