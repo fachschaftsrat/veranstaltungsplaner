@@ -81,11 +81,35 @@
 			</div>
 			<div class="modal-footer">
 				<a href='@routes.Users.register'>Registrieren</a>
+				<a data-dismiss="modal" data-toggle="modal" href="#openidModal">OpenID Login</a>
 			</div>
 		</div>
 	</div>
 </div>
-
+<div id="openidModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Login</h4>
+			</div>
+			<div class="modal-body">
+				<form method="POST" action='@routes.Users.openidlogin()'>
+					<div class="row">
+						<div class="form-group col-md-6">
+							<input type="text" class="form-control" name="openid" placeholder="OpenID" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-md-6">
+							<input type="submit" class="form-control btn btn-primary" value="Einloggen" />
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 @content
 
 @if(context.error.isDefined) {

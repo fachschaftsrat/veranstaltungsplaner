@@ -100,6 +100,21 @@ class Users @Inject()(implicit
     }
   }
 
+  def openidlogin = Action.async { implicit request ⇒
+    val body = request.body.asFormUrlEncoded.get
+    auth.authenticateWithOpenID(body("openid")(0), routes.Users.openidcallback)
+  }
+
+  def openidcallback = Action.async { implicit request ⇒
+    auth.openIDCallback {
+      case (Some(princ), _, _) ⇒
+        if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.events())))
+        else Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
+      case (None, Some(openid), _) ⇒ Future.successful((false, Redirect(routes.Users.register)))
+      case (None, None, _) ⇒ Future.successful((false, error(routes.Application.index, "Login fehlgeschlagen")))
+    }
+  }
+
   def logout = Action.async { implicit request ⇒
     auth.unauthenticate(Redirect(routes.Application.index()))
   }
