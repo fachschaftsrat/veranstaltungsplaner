@@ -22,7 +22,15 @@ class Users @Inject()(implicit
   conf: Configuration
 ) extends ExtendedController {
 
-  auth.principals.createWithPassword("admin", "changeme", BSONDocument("admin" -> true, "activated" -> true))
+  auth.principals.createWithOpenID(conf.getString("admin.name").get, conf.getString("admin.openid").get, BSONDocument(
+    "admin" -> true,
+    "activated" -> true,
+    "email" -> conf.getString("admin.email").get,
+    "vorname" -> conf.getString("admin.vorname").get,
+    "nachname" -> conf.getString("admin.nachname").get,
+    "studiengang" -> conf.getString("admin.studiengang").get,
+    "tel" -> conf.getString("admin.tel").get
+  ))
 
   def register = asyncActionWithContext { request ⇒ implicit context ⇒
     request.method match {
