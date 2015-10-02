@@ -32,9 +32,28 @@
 	@if(context.princIsAdmin) {
 		<div class="container" style="padding-left: 2px;">
 			<h3>Angemeldete</h3>
-			@for(participant <- participants) {
-				<a href='@routes.Users.profile(participant.id)'>@participant.name</a></br>
-			}
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Vorname</th>
+						<th>Nachname</th>
+						<th>Email</th>
+						<th>Studiengang</th>
+						<th>Telefon</th>
+					</tr>
+				</thead>
+				<tbody>
+				@for(participant <- participants) {
+					<tr>
+						<td>@context.principal.get.value[String]("vorname")</td>
+						<td>@context.principal.get.value[String]("nachname")</td>
+						<td>@context.principal.get.value[String]("email")</td>
+						<td>@context.principal.get.value[String]("studiengang")</td>
+						<td>@context.principal.get.value[String]("tel")</td>
+					</tr>
+				}
+				</tbody>
+			</table>
 		</div>
 	}
 }
