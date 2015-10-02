@@ -18,7 +18,9 @@ case class Event(
   // Whether registration to this event is open
   open: Boolean,
   // List of principal ids participating
-  participantIDs: Seq[String]
+  participantIDs: Seq[String],
+  // Whether a participant may sign off without
+  signOffEnabled: Boolean
 ) {
 
   def participants()(implicit auth: Authenticator, ec: ExecutionContext): Future[Seq[Principal]] = {
@@ -75,7 +77,8 @@ object Event {
         form("ort"),
         form("beschreibung"),
         false,
-        Seq()
+        Seq(),
+        if(form("signoff") == "true") true else false
       ))
     } catch {
       case t: Throwable ⇒ Failure(t)
@@ -108,7 +111,8 @@ object Event {
         bson.getAs[String]("ort").get,
         bson.getAs[String]("beschreibung").get,
         bson.getAs[Boolean]("open").getOrElse(false),
-        bson.getAs[Seq[String]]("participantIDs").get
+        bson.getAs[Seq[String]]("participantIDs").get,
+        bson.getAs[Boolean]("signOffEnabled").getOrElse(true)
       )
     }
   }
@@ -122,7 +126,8 @@ object Event {
         "ort" -> event.ort,
         "beschreibung" -> event.beschreibung,
         "open" -> event.open,
-        "participantIDs" -> event.participantIDs
+        "participantIDs" -> event.participantIDs,
+        "signOffEnabled" -> event.signOffEnabled
       )
     }
   }

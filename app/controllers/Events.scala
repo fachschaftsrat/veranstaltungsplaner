@@ -67,8 +67,12 @@ class Events @Inject()(implicit
     context.principal match {
       case Some(princ) ⇒
         Event.find(id) flatMap { event ⇒
-          event.get.removeParticipant(princ).save() map { _ ⇒
-            success(routes.Events.showevent(id), "Du wurdest erfolgreich abgemeldet.")
+          if(event.get.signOffEnabled) {
+            event.get.removeParticipant(princ).save() map { _ ⇒
+              success(routes.Events.showevent(id), "Du wurdest erfolgreich abgemeldet.")
+            }
+          } else {
+            throw new Exception("Sign off disabled")
           }
         }
       case None ⇒
