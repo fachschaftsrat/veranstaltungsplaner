@@ -89,4 +89,16 @@ class Events @Inject()(implicit
       }
     } 
   }
+
+  def removeParticipant(eventId: String, userId: String) = asyncActionWithContext { request ⇒ implicit context ⇒
+    if(!context.princIsAdmin) throw new Exception("Keine Authorisierung")
+    Event.find(eventId) map { _.get } flatMap { event ⇒
+      auth.principals.findByID(userId) flatMap { principal ⇒
+        event.removeParticipant(principal.get).save map {
+          case Success(event) ⇒ success(routes.Events.showevent(event.id), "Teilnehmer entfernt")
+          case Failure(f) ⇒ error(routes.Events.showevent(event.id), f.getMessage)
+        }
+      }
+    }
+  }
 }

@@ -35,6 +35,7 @@
 			<table class="table">
 				<thead>
 					<tr>
+						<th></th>
 						<th>Vorname</th>
 						<th>Nachname</th>
 						<th>Email</th>
@@ -45,11 +46,12 @@
 				<tbody>
 				@for(participant <- participants) {
 					<tr>
-						<td>@context.principal.get.value[String]("vorname")</td>
-						<td>@context.principal.get.value[String]("nachname")</td>
-						<td>@context.principal.get.value[String]("email")</td>
-						<td>@context.principal.get.value[String]("studiengang")</td>
-						<td>@context.principal.get.value[String]("tel")</td>
+						<td><a href="@routes.Events.removeParticipant(event.id, participant.id)">Entfernen</a></td>
+						<td>@participant.value[String]("vorname")</td>
+						<td>@participant.value[String]("nachname")</td>
+						<td>@participant.value[String]("email")</td>
+						<td>@participant.value[String]("studiengang")</td>
+						<td>@participant.value[String]("tel")</td>
 					</tr>
 				}
 				</tbody>
