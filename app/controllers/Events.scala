@@ -37,6 +37,25 @@ class Events @Inject()(implicit
       Future.successful(error(routes.Application.index, "Keine Authorisierung"))
     }
   }
+  
+  def editevent(eventId: String) = asyncActionWithContext { request ⇒ implicit context ⇒
+    if(context.princIsAdmin) {
+      Event.find(eventId) flatMap { eventOption ⇒
+        val event = eventOption.get
+        request.method match {
+          case "GET" ⇒ Future.successful(Ok(views.html.EditEvent(event)))
+          case "POST" ⇒
+            val formEvent = Event.validate(request).get
+            event.copy(name = formEvent.name, ort = formEvent.ort, zeit = formEvent.zeit, beschreibung = formEvent.beschreibung, signOffEnabled = formEvent.signOffEnabled).save map {
+              case Success(event) ⇒ success(routes.Events.showevent(event.id), "Gespeichert")
+              case Failure(f) ⇒ success(routes.Events.showevent(event.id), f.getMessage)
+            }
+        }
+      }
+    } else {
+      Future.successful(error(routes.Application.index, "Keine Authorisierung"))
+    }
+  }
 
   def showevent(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
     Event.find(id) flatMap { event ⇒

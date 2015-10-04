@@ -1,0 +1,46 @@
+@(event: Event)(implicit context: RequestContext)
+
+@Main {
+<div class="container">
+	<h1>Veranstaltung bearbeiten</h1>
+	<form method="POST" action='@routes.Events.editevent(event.id)'>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Veranstaltungsname</label><br />
+				<input class="form-control" name="name" type="text" value="@event.name" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Zeit</label><br />
+				<input class="form-control" name="zeit" type="text" value="@event.zeit" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Ort</label><br />
+				<input class="form-control" name="ort" type="text" value="@event.ort" required />
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label for="name">Beschreibung</label><br />
+				<textarea class="form-control" name="beschreibung" required>@event.beschreibung</textarea>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<select class="form-control" name="signoff" required>
+					<option value="true" @if(event.signOffEnabled) { selected }>Abmeldung möglich</option>
+					<option value="false" @if(!event.signOffEnabled) { selected }>Abmeldung nicht möglich</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<input class="form-control btn btn-primary" type="submit" value="Speichern" required />
+			</div>
+		</div>
+	</form>
+</div>
+}
