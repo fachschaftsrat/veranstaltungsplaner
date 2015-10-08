@@ -116,7 +116,7 @@ class Users @Inject()(implicit
   def openidcallback = Action.async { implicit request ⇒
     auth.openIDCallback {
       case (Some(princ), _, _) ⇒
-        if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.events())))
+        if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.list())))
         else Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
       case (None, Some(openid), _) ⇒ Future.successful((false, Redirect(routes.Users.register)))
       case (None, None, _) ⇒ Future.successful((false, error(routes.Application.index, "Login fehlgeschlagen")))

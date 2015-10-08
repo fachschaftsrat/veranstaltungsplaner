@@ -27,9 +27,9 @@
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav navbar-left">
-				<li><a href='@routes.Events.events()'>Veranstaltungen</a></li>
+				<li><a href='@routes.Events.list()'>Veranstaltungen</a></li>
 				@if(context.princIsAdmin) {
-				<li><a href='@routes.Events.addevent()'>Veranstaltung erstellen</a></li>
+				<li><a href='@routes.Events.add()'>Veranstaltung erstellen</a></li>
 				<li><a href='@routes.Users.allusers()'>Alle Nutzer</a></li>
 				}
 			</ul>
