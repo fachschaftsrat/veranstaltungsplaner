@@ -99,12 +99,12 @@ class Users @Inject()(implicit
     auth.authenticateWithPassword(body("username")(0), body("password")(0)) {
       case Some(principal) ⇒
         if(principal.value[Boolean]("activated").getOrElse(false)) {
-          Future.successful(true, Redirect(routes.Events.events()))
+          Future.successful((true, Redirect(routes.Events.list())))
         } else {
-          Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
+          Future.successful((false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner.")))
         }
       case None ⇒
-        Future.successful(false, error(routes.Application.index(), "Falscher Nutzername/Passwort"))
+        Future.successful((false, error(routes.Application.index(), "Falscher Nutzername/Passwort")))
     }
   }
 
