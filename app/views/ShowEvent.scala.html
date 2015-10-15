@@ -45,7 +45,7 @@
 					</tr>
 				</thead>
 				<tbody>
-				@for(participant <- participants) {
+				@for(participant <- participants.sortWith((a, b) ⇒ a.value[String]("vorname").get > b.value[String]("vorname").get)) {
 					<tr>
 						<td><a href="@routes.Events.removeParticipant(event.id, participant.id)">Entfernen</a></td>
 						<td>@participant.value[String]("vorname")</td>
