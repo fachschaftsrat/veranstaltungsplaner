@@ -31,7 +31,7 @@
 	</div>
 	@if(context.princIsAdmin) {
 		<div class="container" style="padding-left: 2px;">
-			<a href="@routes.Events.editevent(event.id)" class="btn btn-primary">Bearbeiten</a>
+			<a href="@routes.Events.edit(event.id)" class="btn btn-primary">Bearbeiten</a>
 			<h3>Angemeldete</h3>
 			<table class="table">
 				<thead>
@@ -45,7 +45,7 @@
 					</tr>
 				</thead>
 				<tbody>
-				@for(participant <- participants) {
+				@for(participant <- participants.sortWith((a, b) ⇒ a.value[String]("vorname").get > b.value[String]("vorname").get)) {
 					<tr>
 						<td><a href="@routes.Events.removeParticipant(event.id, participant.id)">Entfernen</a></td>
 						<td>@participant.value[String]("vorname")</td>

@@ -16,13 +16,13 @@ class Events @Inject()(implicit
   mongo: ReactiveMongo
 ) extends ExtendedController {
   
-  def events = asyncActionWithContext { request ⇒ implicit context ⇒
+  def list = asyncActionWithContext { request ⇒ implicit context ⇒
     Event.findAll map { events ⇒
       Ok(views.html.Events(events))
     }
   }
 
-  def addevent = asyncActionWithContext { request ⇒ implicit context ⇒
+  def add = asyncActionWithContext { request ⇒ implicit context ⇒
     if(context.princIsAdmin) {
       request.method match {
         case "GET" ⇒ Future.successful(Ok(views.html.AddEvent()))
@@ -30,7 +30,7 @@ class Events @Inject()(implicit
           val event = Event.validate(request).get
           event.insert() map {
             case Success(_) ⇒ success(routes.Application.index, "Event hinzugefügt")
-            case Failure(f) ⇒ error(routes.Events.addevent, "Fehler: " + f.getMessage)
+            case Failure(f) ⇒ error(routes.Events.add, "Fehler: " + f.getMessage)
           }
       }
     } else {
@@ -38,7 +38,7 @@ class Events @Inject()(implicit
     }
   }
   
-  def editevent(eventId: String) = asyncActionWithContext { request ⇒ implicit context ⇒
+  def edit(eventId: String) = asyncActionWithContext { request ⇒ implicit context ⇒
     if(context.princIsAdmin) {
       Event.find(eventId) flatMap { eventOption ⇒
         val event = eventOption.get
@@ -47,8 +47,8 @@ class Events @Inject()(implicit
           case "POST" ⇒
             val formEvent = Event.validate(request).get
             event.copy(name = formEvent.name, ort = formEvent.ort, zeit = formEvent.zeit, beschreibung = formEvent.beschreibung, signOffEnabled = formEvent.signOffEnabled).save map {
-              case Success(event) ⇒ success(routes.Events.showevent(event.id), "Gespeichert")
-              case Failure(f) ⇒ success(routes.Events.showevent(event.id), f.getMessage)
+              case Success(event) ⇒ success(routes.Events.show(event.id), "Gespeichert")
+              case Failure(f) ⇒ success(routes.Events.show(event.id), f.getMessage)
             }
         }
       }
@@ -57,7 +57,7 @@ class Events @Inject()(implicit
     }
   }
 
-  def showevent(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
+  def show(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
     Event.find(id) flatMap { event ⇒
       val isPart: Boolean = context.principal match {
         case Some(princ) ⇒ event.get.isParticipant(princ)
@@ -74,11 +74,11 @@ class Events @Inject()(implicit
       case Some(princ) ⇒
         Event.find(id) flatMap { event ⇒
           event.get.addParticipant(princ).save map { _ ⇒
-            success(routes.Events.showevent(id), "Du wurdest erfolgreich angemeldet.")
+            success(routes.Events.show(id), "Du wurdest erfolgreich angemeldet.")
           }
         }
       case None ⇒
-        Future.successful(error(routes.Events.showevent(id), "Dafür musst du angemeldet sein."))
+        Future.successful(error(routes.Events.show(id), "Dafür musst du angemeldet sein."))
     }
   }
 
@@ -88,14 +88,14 @@ class Events @Inject()(implicit
         Event.find(id) flatMap { event ⇒
           if(event.get.signOffEnabled) {
             event.get.removeParticipant(princ).save() map { _ ⇒
-              success(routes.Events.showevent(id), "Du wurdest erfolgreich abgemeldet.")
+              success(routes.Events.show(id), "Du wurdest erfolgreich abgemeldet.")
             }
           } else {
             throw new Exception("Sign off disabled")
           }
         }
       case None ⇒
-        Future.successful(error(routes.Events.showevent(id), "Dafür musst du angemeldet sein."))
+        Future.successful(error(routes.Events.show(id), "Dafür musst du angemeldet sein."))
     }
   }
 
@@ -103,8 +103,8 @@ class Events @Inject()(implicit
     if(!context.princIsAdmin) throw new Exception("Keine Authorisierung")
     Event.find(id) map { _.get } flatMap { event ⇒
       event.setOpen(!event.open).save map {
-        case Success(_) ⇒ Redirect(routes.Events.showevent(id))
-        case Failure(f) ⇒ error(routes.Events.showevent(id), f.getMessage)
+        case Success(_) ⇒ Redirect(routes.Events.show(id))
+        case Failure(f) ⇒ error(routes.Events.show(id), f.getMessage)
       }
     } 
   }
@@ -114,8 +114,8 @@ class Events @Inject()(implicit
     Event.find(eventId) map { _.get } flatMap { event ⇒
       auth.principals.findByID(userId) flatMap { principal ⇒
         event.removeParticipant(principal.get).save map {
-          case Success(event) ⇒ success(routes.Events.showevent(event.id), "Teilnehmer entfernt")
-          case Failure(f) ⇒ error(routes.Events.showevent(event.id), f.getMessage)
+          case Success(event) ⇒ success(routes.Events.show(event.id), "Teilnehmer entfernt")
+          case Failure(f) ⇒ error(routes.Events.show(event.id), f.getMessage)
         }
       }
     }

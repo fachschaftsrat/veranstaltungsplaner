@@ -99,12 +99,12 @@ class Users @Inject()(implicit
     auth.authenticateWithPassword(body("username")(0), body("password")(0)) {
       case Some(principal) ⇒
         if(principal.value[Boolean]("activated").getOrElse(false)) {
-          Future.successful(true, Redirect(routes.Events.events()))
+          Future.successful((true, Redirect(routes.Events.list())))
         } else {
-          Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
+          Future.successful((false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner.")))
         }
       case None ⇒
-        Future.successful(false, error(routes.Application.index(), "Falscher Nutzername/Passwort"))
+        Future.successful((false, error(routes.Application.index(), "Falscher Nutzername/Passwort")))
     }
   }
 
@@ -116,7 +116,7 @@ class Users @Inject()(implicit
   def openidcallback = Action.async { implicit request ⇒
     auth.openIDCallback {
       case (Some(princ), _, _) ⇒
-        if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.events())))
+        if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.list())))
         else Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
       case (None, Some(openid), _) ⇒ Future.successful((false, Redirect(routes.Users.register)))
       case (None, None, _) ⇒ Future.successful((false, error(routes.Application.index, "Login fehlgeschlagen")))
@@ -145,14 +145,21 @@ class Users @Inject()(implicit
                   } else {
                     Future.successful(error(routes.Users.profile(id), "Passwörter stimmen nicht überein."))
                   }
-                case "account" ⇒ 
-                  if(context.princIsAdmin) {
+                case "account" ⇒
+                  val princ1 = if(context.princIsAdmin) {
                     val admin = form.get("admin").isDefined
-                    princ.value("admin", admin).save map { princ ⇒
-                      Redirect(routes.Users.profile(id))
-                    }
+                    princ.value("admin", admin)
                   } else {
-                    Future.successful(error(routes.Users.profile(id), "Keine Authorisierung"))
+                    princ
+                  }
+                  val tel = form.get("tel")
+                  val princ2 = if(tel.isDefined && tel.get.length > 2) {
+                    princ1.value("tel", tel.get)
+                  } else {
+                    princ1
+                  }
+                  princ2.save map { _ ⇒
+                    Redirect(routes.Users.profile(princ.id))
                   }
                 case _ ⇒
                   Future.successful(error(routes.Users.profile(id), "Ungültige Sektion"))
