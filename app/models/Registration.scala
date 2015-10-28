@@ -58,7 +58,7 @@ object Registration {
             form("vorname")(0),
             form("nachname")(0),
             form("studiengang")(0),
-            form.get("tel").getOrElse(Seq(""))(0),
+            form("tel")(0),
             form("pw1")(0)
           ))
       } else {
