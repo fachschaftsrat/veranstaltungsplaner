@@ -37,6 +37,9 @@
 			@if(context.principal.isDefined) {
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href='@routes.Users.profile(context.principal.get.id)'>Eingeloggt als @context.principal.get.name</a></li>
+				@if(context.principal.get.value[String]("tel").getOrElse("").length < 2) {
+				<li><a href='@routes.Users.profile(context.principal.get.id)')><span style="color: red;">Telefonnummer fehlt. Bitte ergänzen.</span></a></li>
+				}
 				<li><a href='@routes.Users.logout()'>Logout</a></li>
 			</ul>
 			} else {
