@@ -30,7 +30,7 @@
 				</tr>
 				<tr>
 					<td>Telefonnummer</td>
-					<td>@profile.tel</td>
+					<td><input type="text" name="tel" value='@profile.tel' /></td>
 				</tr>
 				<tr>
 					<td>Admin</td>
@@ -39,7 +39,7 @@
 			</tbody>
 		</table>
 		<input type="hidden" name="section" value="account" />
-		@if(context.princIsAdmin) { <input type="submit" class="btn btn-primary" value="Ändern" /> }
+		<input type="submit" class="btn btn-primary" value="Ändern" />
 	</form>
 
 	<h2>Passwort ändern</h2>

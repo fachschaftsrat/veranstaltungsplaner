@@ -145,14 +145,21 @@ class Users @Inject()(implicit
                   } else {
                     Future.successful(error(routes.Users.profile(id), "Passwörter stimmen nicht überein."))
                   }
-                case "account" ⇒ 
-                  if(context.princIsAdmin) {
+                case "account" ⇒
+                  val princ1 = if(context.princIsAdmin) {
                     val admin = form.get("admin").isDefined
-                    princ.value("admin", admin).save map { princ ⇒
-                      Redirect(routes.Users.profile(id))
-                    }
+                    princ.value("admin", admin)
                   } else {
-                    Future.successful(error(routes.Users.profile(id), "Keine Authorisierung"))
+                    princ
+                  }
+                  val tel = form.get("tel")
+                  val princ2 = if(tel.isDefined && tel.get.length > 2) {
+                    princ1.value("tel", tel.get)
+                  } else {
+                    princ1
+                  }
+                  princ2.save map { _ ⇒
+                    Redirect(routes.Users.profile(princ.id))
                   }
                 case _ ⇒
                   Future.successful(error(routes.Users.profile(id), "Ungültige Sektion"))
