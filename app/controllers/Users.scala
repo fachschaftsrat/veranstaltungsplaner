@@ -160,7 +160,7 @@ class Users @Inject()(implicit
                     princ1
                   }
                   princ2.save map { _ ⇒
-                    Redirect(routes.Users.profile(princ.id))
+                    Redirect(routes.Events.list)
                   }
                 case _ ⇒
                   Future.successful(error(routes.Users.profile(id), "Ungültige Sektion"))
