@@ -73,9 +73,13 @@ class Events @Inject()(implicit
   def signup(id: String) = asyncActionWithContext { request ⇒ implicit context ⇒
     context.principal match {
       case Some(princ) ⇒
-        Event.find(id) flatMap { event ⇒
-          event.get.addParticipant(princ).save map { _ ⇒
-            success(routes.Events.show(id), "Du wurdest erfolgreich angemeldet.")
+        if(princ.value[String]("tel").getOrElse("").length < 3) {
+          Future.successful(error(routes.Users.profile(princ.id), "Dein Profil ist unvollständig. Bitte ergänze deine Telefonnummer und versuche erneut dich anzumelden."))
+        } else {
+          Event.find(id) flatMap { event ⇒
+            event.get.addParticipant(princ).save map { _ ⇒
+              success(routes.Events.show(id), "Du wurdest erfolgreich angemeldet.")
+            }
           }
         }
       case None ⇒
