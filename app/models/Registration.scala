@@ -17,7 +17,7 @@ case class Registration(
   password: String
 ) {
 
-  def register()(implicit auth: Authenticator, ec: ExecutionContext): Future[Try[Principal]] = {
+  def register()(implicit principals: PrincipalsApi, ec: ExecutionContext): Future[Try[Principal]] = {
     def bytesToHex(bytes: Seq[Byte]): String = {
       val hexArray = "0123456789abcdef".toCharArray
       val hexChars = new Array[Char](bytes.length * 2)
@@ -29,7 +29,7 @@ case class Registration(
       return new String(hexChars);
     }
 
-    auth.principals.createWithPassword(
+    principals.createWithPassword(
       nutzername,
       password,
       BSONDocument(

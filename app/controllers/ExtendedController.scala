@@ -8,8 +8,8 @@ import scala.concurrent._
 import models._
 
 abstract class ExtendedController(implicit
-  auth: Authenticator,
-  mongo: ReactiveMongo
+  auth: AuthenticatorApi,
+  mongo: ReactiveMongoApi
 ) extends Controller {
 
   def urlencode(str: String): String = {

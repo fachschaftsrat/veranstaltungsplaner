@@ -2,7 +2,7 @@ package models
 
 import reactivemongo.bson._
 import reactivemongo.api._
-import reactivemongo.api.collections.default._
+import reactivemongo.api.collections.bson.BSONCollection
 import play.modules.authenticator._
 import play.modules.reactivemongo._
 import play.api.mvc._
@@ -23,8 +23,8 @@ case class Event(
   signOffEnabled: Boolean
 ) {
 
-  def participants()(implicit auth: Authenticator, ec: ExecutionContext): Future[Seq[Principal]] = {
-    Future.sequence(participantIDs.map({ id ⇒ auth.principals.findByID(id) })) map { seq ⇒
+  def participants()(implicit principals: PrincipalsApi, ec: ExecutionContext): Future[Seq[Principal]] = {
+    Future.sequence(participantIDs.map({ id ⇒ principals.findByID(id) })) map { seq ⇒
       seq.filter({ _.isDefined}).map({ _.get })
     }
   }
@@ -40,7 +40,7 @@ case class Event(
     copy(participantIDs = participantIDs.filter({ _ != princ.id }))
   }
 
-  def insert()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
+  def insert()(implicit mongo: ReactiveMongoApi, ec: ExecutionContext): Future[Try[Event]] = {
     mongo.db.collection[BSONCollection]("events").insert(this)(Event.bsonWriter, ec) map { lastError ⇒
       if(lastError.ok) {
         Success(this)
@@ -54,7 +54,7 @@ case class Event(
     copy(open = open)
   }
 
-  def save()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Try[Event]] = {
+  def save()(implicit mongo: ReactiveMongoApi, ec: ExecutionContext): Future[Try[Event]] = {
     mongo.db.collection[BSONCollection]("events").update(BSONDocument("_id" -> BSONObjectID(id)), this) map { lastError ⇒
       if(lastError.ok) {
         Success(this)
@@ -85,14 +85,14 @@ object Event {
     }
   }
 
-  def findAll()(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Seq[Event]] = {
+  def findAll()(implicit mongo: ReactiveMongoApi, ec: ExecutionContext): Future[Seq[Event]] = {
     mongo.db.collection[BSONCollection]("events")
       .find(BSONDocument())
       .cursor[Event]
       .collect[Seq]()
   }
 
-  def find(id: String)(implicit mongo: ReactiveMongo, ec: ExecutionContext): Future[Option[Event]] = {
+  def find(id: String)(implicit mongo: ReactiveMongoApi, ec: ExecutionContext): Future[Option[Event]] = {
     mongo.db.collection[BSONCollection]("events")
       .find(BSONDocument("_id" -> BSONObjectID(id)))
       .cursor[Event]

@@ -7,8 +7,8 @@ import javax.inject._
 
 @Singleton
 class Application @Inject()(implicit
-  auth: Authenticator,
-  mongo: ReactiveMongo
+  auth: AuthenticatorApi,
+  mongo: ReactiveMongoApi
 ) extends ExtendedController {
 
   def index = actionWithContext { request ⇒ implicit context ⇒

@@ -10,19 +10,20 @@ import scala.concurrent._
 import scala.util.{ Try, Success, Failure }
 import reactivemongo.bson._
 import reactivemongo.core.commands.LastError
-import reactivemongo.api.collections.default.BSONCollection
+import reactivemongo.api.collections.bson.BSONCollection
 import javax.inject._
 import models._
 
 @Singleton
 class Users @Inject()(implicit
-  auth: Authenticator,
-  mongo: ReactiveMongo,
+  auth: AuthenticatorApi,
+  principals: PrincipalsApi,
+  mongo: ReactiveMongoApi,
   mailerClient: MailerClient,
   conf: Configuration
 ) extends ExtendedController {
 
-  auth.principals.createWithOpenID(conf.getString("admin.name").get, conf.getString("admin.openid").get, BSONDocument(
+  principals.createWithOpenID(conf.getString("admin.name").get, conf.getString("admin.openid").get, BSONDocument(
     "admin" -> true,
     "activated" -> true,
     "email" -> conf.getString("admin.email").get,
@@ -80,7 +81,7 @@ class Users @Inject()(implicit
   }
 
   def activate(id: String, secret: String) = Action.async {
-    auth.principals.findByID(id) flatMap {
+    principals.findByID(id) flatMap {
       case Some(princ) ⇒
         if(princ.value[String]("activationSecret").get == secret) {
           princ.value("activated", true).save map { princ ⇒
@@ -129,7 +130,7 @@ class Users @Inject()(implicit
 
   def profile(id: String) = asyncActionWithContext { implicit request ⇒ implicit context ⇒
     if((context.principal map { princ ⇒ princ.value[Boolean]("admin").getOrElse(false) || princ.id == id }).getOrElse(false)) {
-      auth.principals.findByID(id) flatMap {
+      principals.findByID(id) flatMap {
         case Some(princ) ⇒
           request.method match {
             case "GET" ⇒
@@ -175,7 +176,7 @@ class Users @Inject()(implicit
 
   def allusers = asyncActionWithContext { implicit request ⇒ implicit context ⇒
     if(context.princIsAdmin) {
-      auth.principals.findAll map { seq ⇒
+      principals.findAll map { seq ⇒
         Ok(views.html.AllUsers(seq map { Profile(_) }))
       }
     } else {
