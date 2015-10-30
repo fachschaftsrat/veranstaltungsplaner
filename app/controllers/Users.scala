@@ -95,38 +95,33 @@ class Users @Inject()(implicit
     }
   }
 
-  def login = Action.async { implicit request ⇒
+  def login = auth.authWithPassword({ request ⇒
     val body = request.body.asFormUrlEncoded.get
-    auth.authenticateWithPassword(body("username")(0), body("password")(0)) {
-      case Some(principal) ⇒
-        if(principal.value[Boolean]("activated").getOrElse(false)) {
-          Future.successful((true, Redirect(routes.Events.list())))
-        } else {
-          Future.successful((false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner.")))
-        }
-      case None ⇒
-        Future.successful((false, error(routes.Application.index(), "Falscher Nutzername/Passwort")))
-    }
+    (body("username")(0), body("password")(0))
+  })({
+    case Some(princ) ⇒
+      if(princ.value[Boolean]("activated").getOrElse(false)) {
+        Future.successful((true, Redirect(routes.Events.list())))
+      } else {
+        Future.successful((false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner.")))
+      }
+    case None ⇒
+      Future.successful((false, error(routes.Application.index(), "Falscher Nutzername/Passwort")))
+  })
+
+  def openIdLogin = auth.authWithOpenId(routes.Users.openIdCallback) {
+    _.body.asFormUrlEncoded.get("openid")(0)
   }
 
-  def openidlogin = Action.async { implicit request ⇒
-    val body = request.body.asFormUrlEncoded.get
-    auth.authenticateWithOpenID(body("openid")(0), routes.Users.openidcallback)
+  def openIdCallback = auth.openIdCallback {
+    case (Some(princ), _, _) ⇒
+      if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.list())))
+      else Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
+    case (None, Some(openid), _) ⇒ Future.successful((false, Redirect(routes.Users.register)))
+    case (None, None, _) ⇒ Future.successful((false, error(routes.Application.index, "Login fehlgeschlagen")))
   }
 
-  def openidcallback = Action.async { implicit request ⇒
-    auth.openIDCallback {
-      case (Some(princ), _, _) ⇒
-        if(princ.value[Boolean]("activated").getOrElse(false)) Future.successful((true, Redirect(routes.Events.list())))
-        else Future.successful(false, error(routes.Application.index(), "Dein Account ist noch nicht aktiviert. Bitte schau in deinen SPAM-Ordner."))
-      case (None, Some(openid), _) ⇒ Future.successful((false, Redirect(routes.Users.register)))
-      case (None, None, _) ⇒ Future.successful((false, error(routes.Application.index, "Login fehlgeschlagen")))
-    }
-  }
-
-  def logout = Action.async { implicit request ⇒
-    auth.unauthenticate(Redirect(routes.Application.index()))
-  }
+  def logout = auth.unauth(Redirect(routes.Application.index()))
 
   def profile(id: String) = asyncActionWithContext { implicit request ⇒ implicit context ⇒
     if((context.principal map { princ ⇒ princ.value[Boolean]("admin").getOrElse(false) || princ.id == id }).getOrElse(false)) {
