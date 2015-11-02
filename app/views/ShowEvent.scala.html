@@ -45,14 +45,14 @@
 					</tr>
 				</thead>
 				<tbody>
-				@for(participant <- participants.sortWith((a, b) ⇒ a.value[String]("vorname").get > b.value[String]("vorname").get)) {
+				@for(participant <- participants.sortWith((a, b) ⇒ a.value[String]("vorname").getOrElse("") > b.value[String]("vorname").getOrElse(""))) {
 					<tr>
 						<td><a href="@routes.Events.removeParticipant(event.id, participant.id)">Entfernen</a></td>
-						<td>@participant.value[String]("vorname")</td>
-						<td>@participant.value[String]("nachname")</td>
-						<td>@participant.value[String]("email")</td>
-						<td>@participant.value[String]("studiengang")</td>
-						<td>@participant.value[String]("tel")</td>
+						<td>@participant.value[String]("vorname").getOrElse("")</td>
+						<td>@participant.value[String]("nachname").getOrElse("")</td>
+						<td>@participant.value[String]("email").getOrElse("")</td>
+						<td>@participant.value[String]("studiengang").getOrElse("")</td>
+						<td>@participant.value[String]("tel").getOrElse("")</td>
 					</tr>
 				}
 				</tbody>
